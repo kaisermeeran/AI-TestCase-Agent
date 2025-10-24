@@ -3,4 +3,6 @@ pdfplumber
 pandas
 openpyxl
 requests
-# Add any other packages your app uses
+numpy
+python-dotenv
+
