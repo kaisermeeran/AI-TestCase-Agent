@@ -1,0 +1,10 @@
+streamlit
+pdfplumber
+pandas
+openpyxl
+requests
+numpy
+python-dotenv
+python-docx
+
+

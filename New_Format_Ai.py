@@ -9,7 +9,7 @@ from docx import Document
 # ===============================
 # 🔑 Configure API Key
 # ===============================
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # ===============================
@@ -145,9 +145,13 @@ if "results" not in st.session_state:
 # 🚀 Generate Test Cases
 # ===============================
 if uploaded_file and st.button("🚀 Generate Test Cases"):
+    # Reset previous results
+    st.session_state["results"] = []
+
+    # Read file and extract requirements
     requirements = []
     file_name = uploaded_file.name.lower()
-
+    
     if file_name.endswith(".xlsx"):
         df = pd.read_excel(uploaded_file)
         if "Requirement" in df.columns:
@@ -167,43 +171,23 @@ if uploaded_file and st.button("🚀 Generate Test Cases"):
         st.warning("⚠️ No valid requirements found in file.")
         st.stop()
 
-    st.info(f"📘 {len(requirements)} requirements detected. Generating test cases...")
-
+    # Generate test cases
     new_results = []
     for i, req in enumerate(requirements, start=1):
-        ts_id = f"TC_{len(st.session_state['results']) + i}"
+        ts_id = f"TC_{i}"
         pre_req, testcase, expected = generate_testcase(req, user_instruction)
+        new_results.append({
+            "TS_ID": ts_id,
+            "Requirement": req,
+            "Pre-requisite": pre_req,
+            "Generated_TestCase": testcase,
+            "Expected_Result": expected
+        })
 
-        if generate_multiple:
-            testcases = re.split(r"(?i)(?=Test Case\s*\d+\s*:)", testcase)
-            for j, t in enumerate(testcases, start=1):
-                t = t.strip()
-                if not t:
-                    continue
-                expected_match = re.search(r"(Expected\s*Result\s*:?-?\s*)([\s\S]*)", t, re.IGNORECASE)
-                expected_result = expected_match.group(2).strip() if expected_match else expected
-                if expected_match:
-                    t = t.replace(expected_match.group(0), "").strip()
-                new_results.append({
-                    "TS_ID": f"{ts_id}_{j}",
-                    "Requirement": req,
-                    "Pre-requisite": pre_req,
-                    "Generated_TestCase": t,
-                    "Expected_Result": expected_result
-                })
-        else:
-            new_results.append({
-                "TS_ID": ts_id,
-                "Requirement": req,
-                "Pre-requisite": pre_req,
-                "Generated_TestCase": testcase,
-                "Expected_Result": expected
-            })
-
-    # Append to session memory
+    # Store in session
     st.session_state["results"].extend(new_results)
 
-    # Display all results so far
+    # Display results
     st.dataframe(pd.DataFrame(st.session_state["results"]))
 
     # Output to Excel
@@ -218,6 +202,7 @@ if uploaded_file and st.button("🚀 Generate Test Cases"):
         file_name="Generated_TestCases.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 from flask import Flask, request, jsonify
 import threading
