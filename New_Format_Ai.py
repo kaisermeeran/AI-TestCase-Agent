@@ -8,13 +8,14 @@ from dotenv import load_dotenv
 import os
 from docx import Document
 import configparser
+import streamlit as st
+import configparser
+import os
 
 # ===============================
 # 🔑 Configure API Key
 # ===============================
-config = configparser.ConfigParser()
-config.read("config.ini")
-OPENROUTER_API_KEY = config.get("openrouter", "api_key")
+OPENROUTER_API_KEY = st.secrets["openrouter"]["api_key"]
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # ===============================
