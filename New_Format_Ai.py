@@ -9,7 +9,7 @@ from docx import Document
 # ===============================
 # 🔑 Configure API Key
 # ===============================
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # ===============================
